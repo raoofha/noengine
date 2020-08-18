@@ -84,7 +84,6 @@ void Grid_init(Grid* this) {
   this->h = 128;
   this->gap = 8;
   Transform_init(&this->transform);
-  //this->bg.init1();
   Rect_init(&this->bg, gridSizeX * (this->w + this->gap), gridSizeY * (this->h + this->gap), Color_gray);
   //Transform_setOriginCenter(&this->bg.base.transform);
   for(size_t i = 0 ; i < gridSizeX ; i += 1) {

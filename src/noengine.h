@@ -10,6 +10,7 @@ ofilepath=${odir}/${ofilename}
 mkdir -p $odir
 cd $odir
 
+build="tcc -x c $0 -o $ofilepath -lm -lSDL2 -lGL  -fmax-errors=5 -DNOENGINE_IMPLEMENTATION -DSDL_DISABLE_IMMINTRIN_H"
 build="gcc $0 -o $ofilepath -lm -lSDL2 -lGL  -fmax-errors=5 -DNOENGINE_IMPLEMENTATION"
 
 cmd=$1
@@ -42,6 +43,7 @@ uint loadShader(const char* source, uint shaderType);
 void getProgramInfoLog(char log[512], uint program);
 uint createProgram(const char* vertex_shader_source, const char* fragment_shader_source, uint* vertexShaderId, uint* fragmentShaderId);
 void getShaderInfoLog(char log[512], uint program);
+int randInt(int lower, int upper);
 
 typedef struct Shader {
   uint id;
@@ -124,7 +126,9 @@ void Camera_init(Camera* this);
 void Camera_update(Camera* this);
 
 typedef struct IO {
-  bool unknown ; bool padding0[3] ; bool a ; bool b ; bool c ; bool d ; bool e ; bool f ; bool g ; bool h ; bool i ; bool j ; bool k ; bool l ; bool m ; bool n ; bool o ; bool p ; bool q ; bool r ; bool s ; bool t ; bool u ; bool v ; bool w ; bool x ; bool y ; bool z ; bool _1 ; bool _2 ; bool _3 ; bool _4 ; bool _5 ; bool _6 ; bool _7 ; bool _8 ; bool _9 ; bool _0 ; bool _return ; bool escape ; bool backspace ; bool tab ; bool space ; bool minus ; bool equals ; bool leftbracket ; bool rightbracket ; bool backslash ; bool nonushash ; bool semicolon ; bool apostrophe ; bool grave ; bool comma ; bool period ; bool slash ; bool capslock ; bool f1 ; bool f2 ; bool f3 ; bool f4 ; bool f5 ; bool f6 ; bool f7 ; bool f8 ; bool f9 ; bool f10 ; bool f11 ; bool f12 ; bool printscreen ; bool scrolllock ; bool pause ; bool insert ; bool home ; bool pageup ; bool _delete ; bool end ; bool pagedown ; bool right ; bool left ; bool down ; bool up ; bool numlockclear ; bool kp_divide ; bool kp_multiply ; bool kp_minus ; bool kp_plus ; bool kp_enter ; bool kp_1 ; bool kp_2 ; bool kp_3 ; bool kp_4 ; bool kp_5 ; bool kp_6 ; bool kp_7 ; bool kp_8 ; bool kp_9 ; bool kp_0 ; bool kp_period ; bool nonusbackslash ; bool application ; bool power ; bool kp_equals ; bool f13 ; bool f14 ; bool f15 ; bool f16 ; bool f17 ; bool f18 ; bool f19 ; bool f20 ; bool f21 ; bool f22 ; bool f23 ; bool f24 ; bool execute ; bool help ; bool menu ; bool select ; bool stop ; bool again ; bool undo ; bool cut ; bool copy ; bool paste ; bool find ; bool mute ; bool volumeup ; bool volumedown ; bool padding1[6] ; bool international2 ; bool international3 ; bool international4 ; bool international5 ; bool international6 ; bool international7 ; bool international8 ; bool international9 ; bool lang1 ; bool lang2 ; bool lang3 ; bool lang4 ; bool lang5 ; bool lang6 ; bool lang7 ; bool lang8 ; bool lang9 ; bool alterase ; bool sysreq ; bool cancel ; bool clear ; bool prior ; bool return2 ; bool separator ; bool _out ; bool oper ; bool clearagain ; bool crsel ; bool exsel ; bool padding2[11] ; bool kp_00 ; bool kp_000 ; bool thousandsseparator ; bool decimalseparator ; bool currencyunit ; bool currencysubunit ; bool kp_leftparen ; bool kp_rightparen ; bool kp_leftbrace ; bool kp_rightbrace ; bool kp_tab ; bool kp_backspace ; bool kp_a ; bool kp_b ; bool kp_c ; bool kp_d ; bool kp_e ; bool kp_f ; bool kp_xor ; bool kp_power ; bool kp_percent ; bool kp_less ; bool kp_greater ; bool kp_ampersand ; bool kp_dblampersand ; bool kp_verticalbar ; bool kp_dblverticalbar ; bool kp_colon ; bool kp_hash ; bool kp_space ; bool kp_at ; bool kp_exclam ; bool kp_memstore ; bool kp_memrecall ; bool kp_memclear ; bool kp_memadd ; bool kp_memsubtract ; bool kp_memmultiply ; bool kp_memdivide ; bool kp_plusminus ; bool kp_clear ; bool kp_clearentry ; bool kp_binary ; bool kp_octal ; bool kp_decimal ; bool kp_hexadecimal ; bool padding3[2] ; bool lctrl ; bool lshift ; bool lalt ; bool lgui ; bool rctrl ; bool rshift ; bool ralt ; bool rgui ; bool padding4[25] ; bool mode ; bool audionext ; bool audioprev ; bool audiostop ; bool audioplay ; bool audiomute ; bool mediaselect ; bool www ; bool mail ; bool calculator ; bool computer ; bool ac_search ; bool ac_home ; bool ac_back ; bool ac_forward ; bool ac_stop ; bool ac_refresh ; bool ac_bookmarks ; bool brightnessdown ; bool brightnessup ; bool displayswitch ; bool kbdillumtoggle ; bool kbdillumdown ; bool kbdillumup ; bool eject ; bool sleep ; bool app1 ; bool app2 ; bool audiorewind ; bool audiofastforward ; bool padding5[226];
+  //bool unknown ; bool padding0[3] ; bool a ; bool b ; bool c ; bool d ; bool e ; bool f ; bool g ; bool h ; bool i ; bool j ; bool k ; bool l ; bool m ; bool n ; bool o ; bool p ; bool q ; bool r ; bool s ; bool t ; bool u ; bool v ; bool w ; bool x ; bool y ; bool z ; bool _1 ; bool _2 ; bool _3 ; bool _4 ; bool _5 ; bool _6 ; bool _7 ; bool _8 ; bool _9 ; bool _0 ; bool _return ; bool escape ; bool backspace ; bool tab ; bool space ; bool minus ; bool equals ; bool leftbracket ; bool rightbracket ; bool backslash ; bool nonushash ; bool semicolon ; bool apostrophe ; bool grave ; bool comma ; bool period ; bool slash ; bool capslock ; bool f1 ; bool f2 ; bool f3 ; bool f4 ; bool f5 ; bool f6 ; bool f7 ; bool f8 ; bool f9 ; bool f10 ; bool f11 ; bool f12 ; bool printscreen ; bool scrolllock ; bool pause ; bool insert ; bool home ; bool pageup ; bool _delete ; bool end ; bool pagedown ; bool right ; bool left ; bool down ; bool up ; bool numlockclear ; bool kp_divide ; bool kp_multiply ; bool kp_minus ; bool kp_plus ; bool kp_enter ; bool kp_1 ; bool kp_2 ; bool kp_3 ; bool kp_4 ; bool kp_5 ; bool kp_6 ; bool kp_7 ; bool kp_8 ; bool kp_9 ; bool kp_0 ; bool kp_period ; bool nonusbackslash ; bool application ; bool power ; bool kp_equals ; bool f13 ; bool f14 ; bool f15 ; bool f16 ; bool f17 ; bool f18 ; bool f19 ; bool f20 ; bool f21 ; bool f22 ; bool f23 ; bool f24 ; bool execute ; bool help ; bool menu ; bool select ; bool stop ; bool again ; bool undo ; bool cut ; bool copy ; bool paste ; bool find ; bool mute ; bool volumeup ; bool volumedown ; bool padding1[6] ; bool international2 ; bool international3 ; bool international4 ; bool international5 ; bool international6 ; bool international7 ; bool international8 ; bool international9 ; bool lang1 ; bool lang2 ; bool lang3 ; bool lang4 ; bool lang5 ; bool lang6 ; bool lang7 ; bool lang8 ; bool lang9 ; bool alterase ; bool sysreq ; bool cancel ; bool clear ; bool prior ; bool return2 ; bool separator ; bool _out ; bool oper ; bool clearagain ; bool crsel ; bool exsel ; bool padding2[11] ; bool kp_00 ; bool kp_000 ; bool thousandsseparator ; bool decimalseparator ; bool currencyunit ; bool currencysubunit ; bool kp_leftparen ; bool kp_rightparen ; bool kp_leftbrace ; bool kp_rightbrace ; bool kp_tab ; bool kp_backspace ; bool kp_a ; bool kp_b ; bool kp_c ; bool kp_d ; bool kp_e ; bool kp_f ; bool kp_xor ; bool kp_power ; bool kp_percent ; bool kp_less ; bool kp_greater ; bool kp_ampersand ; bool kp_dblampersand ; bool kp_verticalbar ; bool kp_dblverticalbar ; bool kp_colon ; bool kp_hash ; bool kp_space ; bool kp_at ; bool kp_exclam ; bool kp_memstore ; bool kp_memrecall ; bool kp_memclear ; bool kp_memadd ; bool kp_memsubtract ; bool kp_memmultiply ; bool kp_memdivide ; bool kp_plusminus ; bool kp_clear ; bool kp_clearentry ; bool kp_binary ; bool kp_octal ; bool kp_decimal ; bool kp_hexadecimal ; bool padding3[2] ; bool lctrl ; bool lshift ; bool lalt ; bool lgui ; bool rctrl ; bool rshift ; bool ralt ; bool rgui ; bool padding4[25] ; bool mode ; bool audionext ; bool audioprev ; bool audiostop ; bool audioplay ; bool audiomute ; bool mediaselect ; bool www ; bool mail ; bool calculator ; bool computer ; bool ac_search ; bool ac_home ; bool ac_back ; bool ac_forward ; bool ac_stop ; bool ac_refresh ; bool ac_bookmarks ; bool brightnessdown ; bool brightnessup ; bool displayswitch ; bool kbdillumtoggle ; bool kbdillumdown ; bool kbdillumup ; bool eject ; bool sleep ; bool app1 ; bool app2 ; bool audiorewind ; bool audiofastforward ; bool padding5[226];
+
+  int unknown ; int padding0[3] ; int a ; int b ; int c ; int d ; int e ; int f ; int g ; int h ; int i ; int j ; int k ; int l ; int m ; int n ; int o ; int p ; int q ; int r ; int s ; int t ; int u ; int v ; int w ; int x ; int y ; int z ; int _1 ; int _2 ; int _3 ; int _4 ; int _5 ; int _6 ; int _7 ; int _8 ; int _9 ; int _0 ; int _return ; int escape ; int backspace ; int tab ; int space ; int minus ; int equals ; int leftbracket ; int rightbracket ; int backslash ; int nonushash ; int semicolon ; int apostrophe ; int grave ; int comma ; int period ; int slash ; int capslock ; int f1 ; int f2 ; int f3 ; int f4 ; int f5 ; int f6 ; int f7 ; int f8 ; int f9 ; int f10 ; int f11 ; int f12 ; int printscreen ; int scrolllock ; int pause ; int insert ; int home ; int pageup ; int _delete ; int end ; int pagedown ; int right ; int left ; int down ; int up ; int numlockclear ; int kp_divide ; int kp_multiply ; int kp_minus ; int kp_plus ; int kp_enter ; int kp_1 ; int kp_2 ; int kp_3 ; int kp_4 ; int kp_5 ; int kp_6 ; int kp_7 ; int kp_8 ; int kp_9 ; int kp_0 ; int kp_period ; int nonusbackslash ; int application ; int power ; int kp_equals ; int f13 ; int f14 ; int f15 ; int f16 ; int f17 ; int f18 ; int f19 ; int f20 ; int f21 ; int f22 ; int f23 ; int f24 ; int execute ; int help ; int menu ; int select ; int stop ; int again ; int undo ; int cut ; int copy ; int paste ; int find ; int mute ; int volumeup ; int volumedown ; int padding1[6] ; int international2 ; int international3 ; int international4 ; int international5 ; int international6 ; int international7 ; int international8 ; int international9 ; int lang1 ; int lang2 ; int lang3 ; int lang4 ; int lang5 ; int lang6 ; int lang7 ; int lang8 ; int lang9 ; int alterase ; int sysreq ; int cancel ; int clear ; int prior ; int return2 ; int separator ; int _out ; int oper ; int clearagain ; int crsel ; int exsel ; int padding2[11] ; int kp_00 ; int kp_000 ; int thousandsseparator ; int decimalseparator ; int currencyunit ; int currencysubunit ; int kp_leftparen ; int kp_rightparen ; int kp_leftbrace ; int kp_rightbrace ; int kp_tab ; int kp_backspace ; int kp_a ; int kp_b ; int kp_c ; int kp_d ; int kp_e ; int kp_f ; int kp_xor ; int kp_power ; int kp_percent ; int kp_less ; int kp_greater ; int kp_ampersand ; int kp_dblampersand ; int kp_verticalbar ; int kp_dblverticalbar ; int kp_colon ; int kp_hash ; int kp_space ; int kp_at ; int kp_exclam ; int kp_memstore ; int kp_memrecall ; int kp_memclear ; int kp_memadd ; int kp_memsubtract ; int kp_memmultiply ; int kp_memdivide ; int kp_plusminus ; int kp_clear ; int kp_clearentry ; int kp_binary ; int kp_octal ; int kp_decimal ; int kp_hexadecimal ; int padding3[2] ; int lctrl ; int lshift ; int lalt ; int lgui ; int rctrl ; int rshift ; int ralt ; int rgui ; int padding4[25] ; int mode ; int audionext ; int audioprev ; int audiostop ; int audioplay ; int audiomute ; int mediaselect ; int www ; int mail ; int calculator ; int computer ; int ac_search ; int ac_home ; int ac_back ; int ac_forward ; int ac_stop ; int ac_refresh ; int ac_bookmarks ; int brightnessdown ; int brightnessup ; int displayswitch ; int kbdillumtoggle ; int kbdillumdown ; int kbdillumup ; int eject ; int sleep ; int app1 ; int app2 ; int audiorewind ; int audiofastforward ; int padding5[226];
 
   int event;
   char ch;
@@ -165,6 +169,8 @@ IO _lastIo;
 
 typedef enum MS { MS_emit , MS_before, MS_now, MS_after } MS;
 
+typedef enum OriginEnum { OriginCenter, OriginLeft, OriginRight, OriginTop, OriginTopLeft, OriginTopRight, OriginBottom, OriginBottomLeft, OriginBottomRight, OriginNone } OriginEnum;
+
 typedef struct Transform {
   long s;
   long lastS;
@@ -176,6 +182,7 @@ typedef struct Transform {
   Vector size;
   Vector scale;
   Vector rotation;
+  OriginEnum originEnum;
 
   struct Transform* parent;
 } Transform;
@@ -242,9 +249,12 @@ void ObjectT_draw(ObjectT* this);
 
 typedef struct Rect {
   Object base;
+  float vertexData[8];
 } Rect;
-float Rect_vertexData[8] = {0, 0, 1, 0, 0, 1, 1, 1};
+const float Rect_vertexData[8] = {0, 0, 1, 0, 0, 1, 1, 1};
 void Rect_init(Rect* this, float width, float height, Color color);
+void Rect_draw(Rect* this);
+void Rect_update(Rect* this);
 
 void _windowResized(int w, int h);
 
@@ -269,6 +279,10 @@ int indexOf(const char* s, char ch) {
   }
   if ( !s[i] ) return -1;
   return i;
+}
+
+int randInt(int lower, int upper) {
+  return (rand() % (upper - lower)) + lower;
 }
 
 uint loadShader(const char* source, uint shaderType) {
@@ -687,6 +701,7 @@ void Transform_init(Transform* this) {
   this->scale = (Vector){1,1,1};
   this->rotation = (Vector){0,0,0};
   this->parent = NULL;
+  this->originEnum = OriginCenter;
   //foreach (childname; __traits(allMembers, T)) {
   //  init1Array(mixin("children." ~ childname));
   //}
@@ -694,42 +709,81 @@ void Transform_init(Transform* this) {
 }
 
 void Transform_setOriginCenter(Transform* this) {
-  this->origin = (Vector){this->size.x / 2, this->size.y / 2, this->size.z / 2};
+  this->originEnum = OriginCenter;
+  this->origin = (Vector){this->size.x / 2, this->size.y / 2, 0};
 }
 
 void Transform_setOriginLeft(Transform* this) {
+  this->originEnum = OriginLeft;
   this->origin = (Vector){0, this->size.y / 2, 0};
 }
 
 void Transform_setOriginRight(Transform* this) {
+  this->originEnum = OriginRight;
   this->origin = (Vector){this->size.x, this->size.y / 2, 0};
 }
 
 void Transform_setOriginTop(Transform* this) {
+  this->originEnum = OriginTop;
   this->origin = (Vector){this->size.x / 2, 0, 0};
 }
 
 void Transform_setOriginTopLeft(Transform* this) {
+  this->originEnum = OriginTopLeft;
   this->origin = (Vector){0, 0, 0};
 }
 
 void Transform_setOriginTopRight(Transform* this) {
+  this->originEnum = OriginTopRight;
   this->origin = (Vector){this->size.x, 0, 0};
 }
 
 void Transform_setOriginBottom(Transform* this) {
+  this->originEnum = OriginBottom;
   this->origin = (Vector){this->size.x / 2, this->size.y, 0};
 }
 
 void Transform_setOriginBottomLeft(Transform* this) {
+  this->originEnum = OriginBottomLeft;
   this->origin = (Vector){0, this->size.y, 0};
 }
 
 void Transform_setOriginBottomRight(Transform* this) {
+  this->originEnum = OriginBottomRight;
   this->origin = (Vector){this->size.x, this->size.y, 0};
 }
 
 void Transform_update(Transform* this) {
+  switch(this->originEnum) {
+    case OriginCenter:
+      this->origin = (Vector){this->size.x / 2, this->size.y / 2, 0};
+      break;
+    case OriginLeft:
+      this->origin = (Vector){0, this->size.y / 2, 0};
+      break;
+    case OriginRight:
+      this->origin = (Vector){this->size.x, this->size.y / 2, 0};
+      break;
+    case OriginTop:
+      this->origin = (Vector){this->size.x / 2, 0, 0};
+      break;
+    case OriginTopLeft:
+      this->origin = (Vector){0, 0, 0};
+      break;
+    case OriginTopRight:
+      this->origin = (Vector){this->size.x, 0, 0};
+      break;
+    case OriginBottom:
+      this->origin = (Vector){this->size.x / 2, this->size.y, 0};
+      break;
+    case OriginBottomLeft:
+      this->origin = (Vector){0, this->size.y, 0};
+      break;
+    case OriginBottomRight:
+      this->origin = (Vector){this->size.x, this->size.y, 0};
+      break;
+  }
+
   Matrix m = Matrix_identity();
   m = Matrix_translate(&m, &this->position);
   m = Matrix_rotate(   &m, &this->rotation);
@@ -802,8 +856,8 @@ void Object_init(Object* this) {
   Transform_init(&this->transform);
   this->vertexData = NULL;
   this->vertexSize = 2;
-  this->primitiveType = 4;
-  this->lineWidth = 1;
+  this->primitiveType = 5;
+  this->lineWidth = 0;
   this->color = Color_white;
   this->vertexDataIsDirty = true;
   this->vao = 0;
@@ -857,7 +911,7 @@ void ObjectT_init(ObjectT* this) {
   this->vertexData = NULL;
   this->vertexSize = 2;
   this->primitiveType = 4;
-  this->lineWidth = 1;
+  this->lineWidth = 0;
   this->color = Color_white;
   this->textureCoordinateData = NULL;
   this->textureData = NULL;
@@ -981,15 +1035,21 @@ void ObjectT_draw(ObjectT* this) {
 
 void Rect_init(Rect* this, float width, float height, Color color) {
   Object_init(&this->base);
-  this->base.vertexData = Rect_vertexData;
+  memcpy(this->vertexData, Rect_vertexData, sizeof(this->vertexData));
+  this->base.vertexData = this->vertexData;
   this->base.vertexDataLength = sizeof(Rect_vertexData) / sizeof(float);
-  this->base.vertexSize =  2;
-  this->base.primitiveType = 5; 
-  this->base.lineWidth = 0;
   this->base.color = color;
   this->base.transform.size = (Vector){width, height, 0};
-  Transform_setOriginCenter(&this->base.transform);
+  //Transform_setOriginCenter(&this->base.transform);
   Transform_update(&this->base.transform);
+}
+
+void Rect_draw(Rect* this) {
+  Object_draw(&this->base);
+}
+
+void Rect_update(Rect* this) {
+  Object_update(&this->base);
 }
 
 void _windowResized(int w, int h) {
@@ -1095,6 +1155,9 @@ int main(int argc, char** args) {
 
     tick += 1;
     io.event = 0;
+    for(int i = 0 ; i < SDL_NUM_SCANCODES ; i += 1) {
+      if ( ((int*) &io)[i] ) ((int*) &io)[i] += 1;
+    }
 
     SDL_GL_SwapWindow(_window);
     glClearColor(0.0F, 0.0F, 0.0F, 1.0F);
@@ -1151,7 +1214,8 @@ int main(int argc, char** args) {
           break;
         }
         case SDL_KEYDOWN:
-          ((bool*) &io)[_sdlEvent.key.keysym.scancode] = true;
+          //((bool*) &io)[_sdlEvent.key.keysym.scancode] = true;
+          ((int*) &io)[_sdlEvent.key.keysym.scancode] += 1;
           io.keyup = false;
           io.keydown = true;
           io.key = _sdlEvent.key.keysym.scancode;
@@ -1170,7 +1234,8 @@ int main(int argc, char** args) {
           }
           break;
         case SDL_KEYUP:
-          ((bool*) &io)[_sdlEvent.key.keysym.scancode] = false;
+          //((bool*) &io)[_sdlEvent.key.keysym.scancode] = false;
+          ((int*) &io)[_sdlEvent.key.keysym.scancode] = 0;
           io.keyup = true;
           io.keydown = false;
           io.key = _sdlEvent.key.keysym.scancode;
