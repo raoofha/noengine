@@ -10,9 +10,15 @@ ofilepath=${odir}/${ofilename}
 mkdir -p $odir
 cd $odir
 
+build="tcc -x c -c $0 -o $ofilepath.o -fmax-errors=5 -DNOENGINE_IMPLEMENTATION -DSDL_DISABLE_IMMINTRIN_H"
+build="gcc $0 /usr/lib/x86_64-linux-gnu/libSDL2.a /usr/lib/x86_64-linux-gnu/libm.a -o $ofilepath.o -fmax-errors=5 -DNOENGINE_IMPLEMENTATION"
+build="tcc -x c $0 -x a /usr/lib/x86_64-linux-gnu/libSDL2.a /usr/lib/x86_64-linux-gnu/libm.a -o $ofilepath.o -fmax-errors=5 -DNOENGINE_IMPLEMENTATION -DSDL_DISABLE_IMMINTRIN_H"
+build="gcc $0 -l:libSDL2.a -l:libm.a -o $ofilepath.o -fmax-errors=5 -DNOENGINE_IMPLEMENTATION"
+build="gcc      $0 -o $ofilepath -lm -lSDL2 -lGL  -fmax-errors=5 -DNOENGINE_IMPLEMENTATION"
 build="tcc -x c $0 -o $ofilepath -lm -lSDL2 -lGL  -fmax-errors=5 -DNOENGINE_IMPLEMENTATION -DSDL_DISABLE_IMMINTRIN_H"
-build="gcc $0 -o $ofilepath -lm -lSDL2 -lGL  -fmax-errors=5 -DNOENGINE_IMPLEMENTATION"
 
+#ar rcs $ofilepath.a $ofilepath.o &&
+ 
 cmd=$1
 echo $cmd...
 if [ "$cmd" == "build" ]; then
@@ -188,15 +194,6 @@ typedef struct Transform {
 } Transform;
 
 void Transform_init(Transform* this);
-void Transform_setOriginCenter(Transform* this);
-void Transform_setOriginLeft(Transform* this);
-void Transform_setOriginRight(Transform* this);
-void Transform_setOriginTop(Transform* this);
-void Transform_setOriginTopLeft(Transform* this);
-void Transform_setOriginTopRight(Transform* this);
-void Transform_setOriginBottom(Transform* this);
-void Transform_setOriginBottomLeft(Transform* this);
-void Transform_setOriginBottomRight(Transform* this);
 void Transform_update(Transform* this);
 
 typedef struct Object { 
@@ -639,9 +636,9 @@ Matrix Matrix_lookat(Vector cameraPosition, Vector cameraTarget, Vector cameraUp
 Color Color_new(int r, int g, int b, int a) {
   Color c;
   c.value[0] = (float) r / 255;
-  c.value[0] = (float) g / 255;
-  c.value[0] = (float) b / 255;
-  c.value[0] = (float) a / 255;
+  c.value[1] = (float) g / 255;
+  c.value[2] = (float) b / 255;
+  c.value[3] = (float) a / 255;
   return c;
 }
 
@@ -706,51 +703,6 @@ void Transform_init(Transform* this) {
   //  init1Array(mixin("children." ~ childname));
   //}
   Transform_update(this);
-}
-
-void Transform_setOriginCenter(Transform* this) {
-  this->originEnum = OriginCenter;
-  this->origin = (Vector){this->size.x / 2, this->size.y / 2, 0};
-}
-
-void Transform_setOriginLeft(Transform* this) {
-  this->originEnum = OriginLeft;
-  this->origin = (Vector){0, this->size.y / 2, 0};
-}
-
-void Transform_setOriginRight(Transform* this) {
-  this->originEnum = OriginRight;
-  this->origin = (Vector){this->size.x, this->size.y / 2, 0};
-}
-
-void Transform_setOriginTop(Transform* this) {
-  this->originEnum = OriginTop;
-  this->origin = (Vector){this->size.x / 2, 0, 0};
-}
-
-void Transform_setOriginTopLeft(Transform* this) {
-  this->originEnum = OriginTopLeft;
-  this->origin = (Vector){0, 0, 0};
-}
-
-void Transform_setOriginTopRight(Transform* this) {
-  this->originEnum = OriginTopRight;
-  this->origin = (Vector){this->size.x, 0, 0};
-}
-
-void Transform_setOriginBottom(Transform* this) {
-  this->originEnum = OriginBottom;
-  this->origin = (Vector){this->size.x / 2, this->size.y, 0};
-}
-
-void Transform_setOriginBottomLeft(Transform* this) {
-  this->originEnum = OriginBottomLeft;
-  this->origin = (Vector){0, this->size.y, 0};
-}
-
-void Transform_setOriginBottomRight(Transform* this) {
-  this->originEnum = OriginBottomRight;
-  this->origin = (Vector){this->size.x, this->size.y, 0};
 }
 
 void Transform_update(Transform* this) {
@@ -1040,7 +992,6 @@ void Rect_init(Rect* this, float width, float height, Color color) {
   this->base.vertexDataLength = sizeof(Rect_vertexData) / sizeof(float);
   this->base.color = color;
   this->base.transform.size = (Vector){width, height, 0};
-  //Transform_setOriginCenter(&this->base.transform);
   Transform_update(&this->base.transform);
 }
 
@@ -1058,14 +1009,6 @@ void _windowResized(int w, int h) {
   float sx = io.windowSize.x / io.camera.viewSize.x;
   float sy = io.windowSize.y / io.camera.viewSize.y;
   float s = sx < sy ? sx : sy;
-  //scale = Vector(s, s);
-  //position = (io.windowSize - s * io.camera.viewSize) / 2;
-  //glViewport(cast(int) position.x, cast(int) position.y, cast(int)(s * io.camera.viewSize.x), cast(int)(s * io.camera.viewSize.y));
-  ////glViewport(cast(int) position.x - 1, cast(int) position.y - 1, cast(int)(s * io.camera.viewSize.x), cast(int)(s * io.camera.viewSize.y));
-  ////glViewport(0, 0, cast(int)(io.windowSize.x), cast(int)(io.windowSize.y));
-  ////glViewport(cast(int) position.x, cast(int) position.y, cast(int) round(s * io.camera.viewSize.x), cast(int) round(s * io.camera.viewSize.y));
-  ////glViewport(cast(int) round(position.x), cast(int) round(position.y), cast(int) round(s * io.camera.viewSize.x), cast(int) round(s * io.camera.viewSize.y));
-  ////glViewport(cast(int) round(position.x + 0.5), cast(int) round(position.y + 0.5), cast(int) round(s * io.camera.viewSize.x + 0.5), cast(int) round(s * io.camera.viewSize.y + 0.5));
 
   glViewport(0, 0, w, h);
   io.camera.viewSize = io.windowSize;
@@ -1155,6 +1098,15 @@ int main(int argc, char** args) {
 
     tick += 1;
     io.event = 0;
+    io.mouseMotion = false;
+    io.mouseWheelUp = false;
+    io.mouseWheelDown = false;
+    io.click = false;
+    io.dragEnd = false;
+    io.windowResize = false;
+    io.key = 0;
+    io.ch = 0;
+
     for(int i = 0 ; i < SDL_NUM_SCANCODES ; i += 1) {
       if ( ((int*) &io)[i] ) ((int*) &io)[i] += 1;
     }
@@ -1305,14 +1257,6 @@ int main(int argc, char** args) {
 
       _lastSdlEvent = _sdlEvent;
       _lastIo = io;
-      io.mouseMotion = false;
-      io.mouseWheelUp = false;
-      io.mouseWheelDown = false;
-      io.click = false;
-      io.dragEnd = false;
-      io.windowResize = false;
-      io.key = 0;
-      io.ch = 0;
     }
   }
   return io.ret;
