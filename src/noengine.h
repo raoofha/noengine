@@ -225,7 +225,6 @@ typedef struct ObjectT {
   float* textureCoordinateData; 
   size_t textureCoordinateDataLength; 
   ubyte* textureData;
-  size_t textureDataLength;
   int textureWidth;
   int textureHeight;
   int textureBytesPerPixel;
